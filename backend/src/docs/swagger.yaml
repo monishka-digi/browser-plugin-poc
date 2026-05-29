@@ -1,0 +1,167 @@
+openapi: 3.0.0
+
+info:
+  title: Grace Mock API
+  version: 1.0.0
+  description: Mock backend server for Chrome Extension integration
+
+servers:
+  - url: http://localhost:5000
+
+paths:
+
+  /register:
+    post:
+      summary: Register user
+      tags:
+        - Auth
+
+      requestBody:
+        required: true
+
+        content:
+          application/json:
+            schema:
+              type: object
+
+              properties:
+                name:
+                  type: string
+
+                email:
+                  type: string
+
+                password:
+                  type: string
+
+                role:
+                  type: string
+
+      responses:
+        201:
+          description: User registered successfully
+
+
+  /account-me:
+    get:
+      summary: Validate API credentials and get logged in user
+
+      parameters:
+        - in: header
+          name: provider-id
+          required: true
+          schema:
+            type: string
+
+        - in: header
+          name: provider-secret
+          required: true
+          schema:
+            type: string
+
+        - in: header
+          name: api-key
+          required: true
+          schema:
+            type: string
+
+        - in: header
+          name: email
+          required: true
+          schema:
+            type: string
+
+      responses:
+        200:
+          description: Success
+
+
+  /records:
+    get:
+      summary: Get all notarial records
+
+      security:
+        - bearerAuth: []
+
+      responses:
+        200:
+          description: Success
+
+
+  /records/{idRecord}/data:
+    get:
+      summary: Get detailed record data
+
+      parameters:
+        - in: path
+          name: idRecord
+          required: true
+          schema:
+            type: string
+
+      security:
+        - bearerAuth: []
+
+      responses:
+        200:
+          description: Success
+
+        404:
+          description: Record not found
+
+
+  /records/{idRecord}/final:
+    get:
+      summary: Get AI generated deed preview URL
+
+      security:
+        - bearerAuth: []
+
+      parameters:
+        - in: path
+          name: idRecord
+          required: true
+          schema:
+            type: string
+
+      responses:
+        200:
+          description: Success
+
+
+  /records/record-data:
+    post:
+      summary: Submit ASP.NET form data
+
+      requestBody:
+        required: true
+
+        content:
+          application/json:
+            schema:
+              type: object
+
+              properties:
+                general_data:
+                  type: object
+
+                tax_data:
+                  type: object
+
+                official_identification:
+                  type: array
+
+      security:
+        - bearerAuth: []
+
+      responses:
+        201:
+          description: Record data submitted successfully
+
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

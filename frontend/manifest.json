@@ -1,0 +1,33 @@
+{
+  "manifest_version": 3,
+
+  "name": "Grace API Chrome Extension",
+
+  "version": "1.0.0",
+
+  "permissions": [
+    "storage",
+    "activeTab",
+    "scripting",
+    "tabs"
+  ],
+
+  "host_permissions": [
+    "<all_urls>"
+  ],
+
+  "background": {
+    "service_worker": "background/service-worker.js"
+  },
+
+  "action": {
+    "default_popup": "popup.html"
+  },
+
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content/content.js"]
+    }
+  ]
+}

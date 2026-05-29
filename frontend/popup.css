@@ -1,0 +1,33 @@
+body {
+    width: 350px;
+    margin: 0;
+    padding: 20px;
+    font-family: Arial, sans-serif;
+}
+
+.container {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+h1 {
+    margin: 0 0 10px;
+    text-align: center;
+    font-size: 22px;
+}
+
+input,
+select,
+button {
+    padding: 10px;
+    font-size: 14px;
+}
+
+button {
+    cursor: pointer;
+}
+
+hr {
+    width: 100%;
+}

@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Grace Extension</title>
+    <link rel="stylesheet" href="popup.css" />
+  </head>
+  <body>
+    <div class="container">
+      <h1>Grace Extension</h1>
+
+      <input type="text" id="providerId" placeholder="Provider ID" />
+
+      <input type="text" id="providerSecret" placeholder="Provider Secret" />
+
+      <input type="text" id="apiKey" placeholder="API Key" />
+
+      <input type="email" id="email" placeholder="Email" />
+
+      <button id="loginBtn">Login</button>
+
+      <hr />
+
+      <button id="fetchRecordsBtn">Fetch Records</button>
+
+      <select id="recordsDropdown">
+        <option value="">Select Record</option>
+      </select>
+
+      <button id="fillFormBtn">Load Record</button>
+      <button id="submitFormBtn">Submit Form</button>
+    </div>
+
+    <script src="popup.js"></script>
+  </body>
+</html>
