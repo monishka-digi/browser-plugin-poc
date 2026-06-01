@@ -10,15 +10,24 @@
     <div class="container">
       <h1>Grace Extension</h1>
 
-      <input type="text" id="providerId" placeholder="Provider ID" />
+      <div id="authFields">
+        <input type="text" id="providerId" placeholder="Provider ID" />
 
-      <input type="text" id="providerSecret" placeholder="Provider Secret" />
+        <input type="text" id="providerSecret" placeholder="Provider Secret" />
 
-      <input type="text" id="apiKey" placeholder="API Key" />
+        <input type="text" id="apiKey" placeholder="API Key" />
 
-      <input type="email" id="email" placeholder="Email" />
+        <input type="email" id="email" placeholder="Email" />
 
-      <button id="loginBtn">Login</button>
+        <button id="loginBtn">Login</button>
+      </div>
+
+      <div id="welcomePanel" style="display: none">
+        <div class="welcomeText">
+          Welcome, <span id="welcomeName">User</span>!
+        </div>
+        <button id="logoutBtn">Logout</button>
+      </div>
 
       <hr />
 
@@ -30,6 +39,20 @@
 
       <button id="fillFormBtn">Load Record</button>
       <button id="submitFormBtn">Submit Form</button>
+
+      <hr />
+
+      <details class="debugPanel">
+        <!-- <summary>Debug</summary> -->
+        <div class="debugBlock">
+          <div class="debugLabel">Last record response JSON</div>
+          <pre id="recordJson" class="debugPre"></pre>
+        </div>
+        <!-- <div class="debugBlock">
+          <div class="debugLabel">Fill report</div>
+          <pre id="fillReportJson" class="debugPre"></pre>
+        </div> -->
+      </details>
     </div>
 
     <script src="popup.js"></script>

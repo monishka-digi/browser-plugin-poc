@@ -11,6 +11,18 @@ body {
     gap: 10px;
 }
 
+.welcomeText {
+    font-size: 14px;
+    font-weight: 600;
+}
+
+#authFields,
+#welcomePanel {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
 h1 {
     margin: 0 0 10px;
     text-align: center;
@@ -28,6 +40,44 @@ button {
     cursor: pointer;
 }
 
+button:disabled,
+input:disabled,
+select:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
 hr {
     width: 100%;
+}
+
+.debugPanel summary {
+    cursor: pointer;
+    user-select: none;
+}
+
+.debugBlock {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-top: 10px;
+}
+
+.debugLabel {
+    font-size: 12px;
+    color: #444;
+}
+
+.debugPre {
+    margin: 0;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    background: #fafafa;
+    max-height: 160px;
+    overflow: auto;
+    font-size: 12px;
+    line-height: 1.35;
+    white-space: pre-wrap;
+    word-break: break-word;
 }
