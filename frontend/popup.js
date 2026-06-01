@@ -25,7 +25,8 @@ const getAccessTokenFromCredentials = (credentials) => {
   return (
     credentials.access_token ||
     credentials.accessToken ||
-    (credentials.tokens && (credentials.tokens.access_token || credentials.tokens.accessToken)) ||
+    (credentials.tokens &&
+      (credentials.tokens.access_token || credentials.tokens.accessToken)) ||
     null
   );
 };
@@ -50,7 +51,7 @@ const executeScriptInTab = (tabId, files) =>
         const err = chrome.runtime.lastError;
         if (err) return reject(err);
         resolve(result);
-      }
+      },
     );
   });
 
@@ -61,24 +62,17 @@ const API_BASE_URL = "http://localhost:5000";
 
 loginBtn.addEventListener("click", async () => {
   try {
-    const providerId =
-      document.getElementById("providerId").value.trim();
+    const providerId = document.getElementById("providerId").value.trim();
 
-    const providerSecret =
-      document.getElementById("providerSecret").value.trim();
+    const providerSecret = document
+      .getElementById("providerSecret")
+      .value.trim();
 
-    const apiKey =
-      document.getElementById("apiKey").value.trim();
+    const apiKey = document.getElementById("apiKey").value.trim();
 
-    const email =
-      document.getElementById("email").value.trim();
+    const email = document.getElementById("email").value.trim();
 
-    if (
-      !providerId ||
-      !providerSecret ||
-      !apiKey ||
-      !email
-    ) {
+    if (!providerId || !providerSecret || !apiKey || !email) {
       alert("Please fill all fields");
       return;
     }
@@ -92,18 +86,15 @@ loginBtn.addEventListener("click", async () => {
 
     console.log("Login Request:", payload);
 
-    const response = await fetch(
-      `${API_BASE_URL}/account-me`,
-      {
-        method: "GET",
-        headers: {
-          "provider-id": providerId,
-          "provider-secret": providerSecret,
-          "api-key": apiKey,  
-          "email": email,
-        },
-      }
-    );
+    const response = await fetch(`${API_BASE_URL}/account-me`, {
+      method: "GET",
+      headers: {
+        "provider-id": providerId,
+        "provider-secret": providerSecret,
+        "api-key": apiKey,
+        email: email,
+      },
+    });
 
     const data = (await readJsonSafely(response)) || {};
 
@@ -111,8 +102,7 @@ loginBtn.addEventListener("click", async () => {
 
     if (!response.ok) {
       throw new Error(
-        data.message ||
-          `Request failed with status ${response.status}`
+        data.message || `Request failed with status ${response.status}`,
       );
     }
 
@@ -165,7 +155,7 @@ fetchRecordsBtn.addEventListener("click", async () => {
     const response = await fetch(`${API_BASE_URL}/records`, {
       method: "GET",
       headers: {
-        "Authorization": `Bearer ${accessToken}`
+        Authorization: `Bearer ${accessToken}`,
       },
     });
 
@@ -192,8 +182,8 @@ fetchRecordsBtn.addEventListener("click", async () => {
     records.forEach((record) => {
       const option = document.createElement("option");
 
-      option.value = record.idRecord;
-      option.textContent = `${record.idRecord} - ${record.title}`;
+      option.value = record.record_id;
+      option.textContent = `${record.record_id} - ${record.full_name}`;
 
       recordsDropdown.appendChild(option);
     });
@@ -237,7 +227,7 @@ fillFormBtn.addEventListener("click", async () => {
       {
         method: "GET",
         headers: {
-          "Authorization": `Bearer ${accessToken}`
+          Authorization: `Bearer ${accessToken}`,
         },
       },
     );
@@ -248,6 +238,13 @@ fillFormBtn.addEventListener("click", async () => {
     }
 
     const recordResponse = (await readJsonSafely(response)) || {};
+
+    if (!response.ok) {
+      throw new Error(
+        recordResponse.message || `API Error: ${response.status}`,
+      );
+    }
+
     if (!recordResponse.success || !recordResponse.data) {
       throw new Error("Unexpected record data response format.");
     }
@@ -271,7 +268,10 @@ fillFormBtn.addEventListener("click", async () => {
       fillResponse = await sendMessageToTab(tab.id, msg);
     } catch (err) {
       // If the content script isn't injected (or the page just reloaded), inject and retry.
-      console.warn("sendMessage failed; injecting content script and retrying:", err?.message || err);
+      console.warn(
+        "sendMessage failed; injecting content script and retrying:",
+        err?.message || err,
+      );
       await executeScriptInTab(tab.id, ["content/content.js"]);
       fillResponse = await sendMessageToTab(tab.id, msg);
     }
@@ -279,7 +279,9 @@ fillFormBtn.addEventListener("click", async () => {
     console.log("Content Script Response:", fillResponse);
 
     if (fillResponse && fillResponse.ok === false) {
-      throw new Error(fillResponse.error || "Form fill failed in content script.");
+      throw new Error(
+        fillResponse.error || "Form fill failed in content script.",
+      );
     }
 
     alert("Form fill triggered");
@@ -317,14 +319,20 @@ submitFormBtn?.addEventListener("click", async () => {
     let payload = lastLoadedRecordData;
 
     if (!payload || lastLoadedRecordId !== selectedRecordId) {
-      console.log("No cached record payload; fetching record data:", selectedRecordId);
+      console.log(
+        "No cached record payload; fetching record data:",
+        selectedRecordId,
+      );
 
-      const recordRes = await fetch(`${API_BASE_URL}/records/${selectedRecordId}/data`, {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
+      const recordRes = await fetch(
+        `${API_BASE_URL}/records/${selectedRecordId}/data`,
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
         },
-      });
+      );
 
       const recordJson = (await readJsonSafely(recordRes)) || {};
       if (!recordRes.ok) {

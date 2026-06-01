@@ -129,55 +129,135 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
   if (message?.type !== "FILL_FORM") return;
 
   (async () => {
-    // Accept both shapes: { data: recordData } or accidental nesting { data: { data: recordData } }
-    const root = message.data && message.data.data ? message.data.data : message.data;
-    const data = root || {};
-    const general = data.general_data || {};
-    const tax = data.tax_data || {};
+    const record = message?.data || {};
+
+    console.log("Grace Record Received:", record);
 
     if (document.readyState === "loading") {
-      await new Promise((resolve) => document.addEventListener("DOMContentLoaded", resolve, { once: true }));
+      await new Promise((resolve) =>
+        document.addEventListener("DOMContentLoaded", resolve, {
+          once: true,
+        })
+      );
     }
 
     const report = {};
 
     const fields = [
-      { key: "full_name", selectors: ["#txtFullName", "[name='FullName']", "[name='full_name']"], value: general.full_name },
-      { key: "birth_date", selectors: ["#txtDOB", "[name='BirthDate']", "[name='birth_date']"], value: general.birth_date },
-      { key: "rfc", selectors: ["#txtRFC", "[name='RFC']", "[name='rfc']"], value: general.rfc },
-      { key: "curp", selectors: ["#txtCURP", "[name='CURP']", "[name='curp']"], value: general.curp },
+      {
+        key: "full_name",
+        selectors: [
+          "#txtFullName",
+          "[name='FullName']",
+          "[name='full_name']",
+        ],
+        value: record.full_name,
+      },
+      {
+        key: "birth_date",
+        selectors: [
+          "#txtDOB",
+          "[name='BirthDate']",
+          "[name='birth_date']",
+        ],
+        value: record.birth_date,
+      },
+      {
+        key: "rfc",
+        selectors: [
+          "#txtRFC",
+          "[name='RFC']",
+          "[name='rfc']",
+        ],
+        value: record.rfc,
+      },
+      {
+        key: "curp",
+        selectors: [
+          "#txtCURP",
+          "[name='CURP']",
+          "[name='curp']",
+        ],
+        value: record.curp,
+      },
       {
         key: "fiscal_registration_number",
-        selectors: ["#txtFiscalReg", "[name='FiscalRegistrationNumber']", "[name='fiscal_registration_number']"],
-        value: tax.fiscal_registration_number
+        selectors: [
+          "#txtFiscalReg",
+          "[name='FiscalRegistrationNumber']",
+          "[name='fiscal_registration_number']",
+        ],
+        value: record.fiscal_registration_number,
       },
-      { key: "company_name", selectors: ["#txtCompanyName", "[name='CompanyName']", "[name='company_name']"], value: tax.company_name }
+      {
+        key: "company_name",
+        selectors: [
+          "#txtCompanyName",
+          "[name='CompanyName']",
+          "[name='company_name']",
+        ],
+        value: record.company_name,
+      },
     ];
 
-    for (const f of fields) {
-      // eslint-disable-next-line no-await-in-loop
-      const el = await waitForFirst(f.selectors, 3000);
+    for (const field of fields) {
+      const el = await waitForFirst(field.selectors, 3000);
+
       if (!el) {
-        report[f.key] = { ok: false, reason: "field_not_found" };
-        console.warn("Grace: field not found", f.selectors);
+        report[field.key] = {
+          ok: false,
+          reason: "field_not_found",
+        };
+
+        console.warn(
+          "Grace field not found:",
+          field.key,
+          field.selectors
+        );
+
         continue;
       }
-      report[f.key] = { ok: setValue(f.selectors, f.value) };
-    }
 
-    if (Array.isArray(data.official_identification) && data.official_identification.length) {
-      const first = data.official_identification[0] || {};
-      report.document_type = { ok: setValue(["#ddlIDType", "[name='IDType']", "[name='document_type']"], first.document_type) };
-      report.identification_number = {
-        ok: setValue(["#txtIDNumber", "[name='IDNumber']", "[name='identification_number']"], first.identification_number)
+      report[field.key] = {
+        ok: setValue(field.selectors, field.value),
       };
     }
 
-    console.log("Grace fill report:", report);
-    sendResponse({ ok: true, report });
+    report.document_type = {
+      ok: setValue(
+        [
+          "#ddlIDType",
+          "[name='IDType']",
+          "[name='document_type']",
+        ],
+        record.document_type
+      ),
+    };
+
+    report.identification_number = {
+      ok: setValue(
+        [
+          "#txtIDNumber",
+          "[name='IDNumber']",
+          "[name='identification_number']",
+        ],
+        record.identification_number
+      ),
+    };
+
+    console.log("Grace Fill Report:", report);
+
+    sendResponse({
+      ok: true,
+      report,
+    });
   })().catch((err) => {
-    console.error("Grace: fill failed", err);
-    sendResponse({ ok: false, error: err?.message || String(err) });
+    console.error("Grace fill failed:", err);
+
+    sendResponse({
+      ok: false,
+      error: err?.message || String(err),
+    });
   });
 
   return true;
