@@ -198,6 +198,105 @@ const executeScriptInTab = (tabId, files) =>
     );
   });
 
+const executeFunctionInTab = (tabId, func, args = []) =>
+  new Promise((resolve, reject) => {
+    chrome.scripting.executeScript(
+      {
+        target: { tabId, allFrames: true },
+        world: "MAIN",
+        func,
+        args,
+      },
+      (result) => {
+        const err = chrome.runtime.lastError;
+        if (err) return reject(err);
+        resolve(result);
+      },
+    );
+  });
+
+const clickApplicationSubmitButton = async () => {
+  const [tab] = await chrome.tabs.query({
+    active: true,
+    currentWindow: true,
+  });
+
+  if (!tab?.id) {
+    throw new Error("Active tab not found.");
+  }
+
+  const results = await executeFunctionInTab(tab.id, () => {
+    const isUsable = (el) => {
+      if (!el || el.disabled || el.getAttribute("aria-disabled") === "true") {
+        return false;
+      }
+
+      const style = window.getComputedStyle(el);
+      const rect = el.getBoundingClientRect();
+      return (
+        style.display !== "none" &&
+        style.visibility !== "hidden" &&
+        rect.width > 0 &&
+        rect.height > 0
+      );
+    };
+
+    const submitButton =
+      document.querySelector("#btnSubmit") ||
+      document.querySelector("input[name='btnSubmit']") ||
+      document.querySelector("input[type='submit'][value='Submit']") ||
+      document.querySelector("button[type='submit']");
+
+    if (!isUsable(submitButton)) {
+      return {
+        ok: false,
+        reason: "submit_button_not_found",
+      };
+    }
+
+    submitButton.scrollIntoView({
+      block: "center",
+      inline: "center",
+    });
+    submitButton.focus();
+
+    submitButton.dispatchEvent(
+      new MouseEvent("mousedown", {
+        bubbles: true,
+        cancelable: true,
+        view: window,
+      }),
+    );
+    submitButton.dispatchEvent(
+      new MouseEvent("mouseup", {
+        bubbles: true,
+        cancelable: true,
+        view: window,
+      }),
+    );
+    submitButton.click();
+
+    return {
+      ok: true,
+      id: submitButton.id || null,
+      name: submitButton.name || null,
+      value: submitButton.value || submitButton.textContent?.trim() || null,
+    };
+  });
+
+  const clicked = results?.find((entry) => entry.result?.ok);
+  if (clicked) {
+    console.log("Application Submit Response:", clicked.result);
+    return clicked.result;
+  }
+
+  const firstResult = results?.find((entry) => entry.result)?.result;
+  throw new Error(
+    firstResult?.reason ||
+      "Application submit button was not found on the active page.",
+  );
+};
+
 // =====================
 // LOGIN
 // =====================
@@ -537,7 +636,11 @@ submitFormBtn?.addEventListener("click", async () => {
       throw new Error(data.message || "Submit failed");
     }
 
-    alert(data.message || "Submitted successfully");
+    await clickApplicationSubmitButton();
+
+    setTimeout(() => {
+      alert(data.message || "Submitted successfully");
+    }, 500);
   } catch (error) {
     console.error("Submit Form Error:", error);
     alert(error.message || "Failed to submit form");
