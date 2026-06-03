@@ -33,6 +33,7 @@ let lastApiResponse = null;
 let submittedRecordIds = new Set();
 
 const API_BASE_URL = "http://localhost:5000";
+console.log("API Base URL:", API_BASE_URL);
 
 // Toast system
 function showToast(message, type = "success") {
