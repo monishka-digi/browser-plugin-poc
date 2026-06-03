@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "name": "Grace API Chrome Extension",
+  "name": "Grace Plugin",
   "version": "1.0.0",
   "permissions": ["storage", "activeTab", "scripting", "tabs"],
   "host_permissions": [
