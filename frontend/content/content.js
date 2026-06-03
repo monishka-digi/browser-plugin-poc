@@ -145,7 +145,7 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
 
     const fields = [
       {
-        key: "full_name",
+        key: "full_name", 
         selectors: [
           "#txtFullName",
           "[name='FullName']",
