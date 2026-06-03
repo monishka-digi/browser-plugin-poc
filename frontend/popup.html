@@ -1,60 +1,178 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Grace Extension</title>
-    <link rel="stylesheet" href="popup.css" />
-  </head>
-  <body>
-    <div class="container">
-      <h1>Grace Extension</h1>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Grace Extension</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+<div class="app">
+  <!-- Toast Container -->
+  <div id="toastContainer" class="toast-container"></div>
 
-      <div id="authFields">
-        <input type="text" id="providerId" placeholder="Provider ID" />
-
-        <input type="text" id="providerSecret" placeholder="Provider Secret" />
-
-        <input type="text" id="apiKey" placeholder="API Key" />
-
-        <input type="email" id="email" placeholder="Email" />
-
-        <button id="loginBtn">Login</button>
-      </div>
-
-      <div id="welcomePanel" style="display: none">
-        <div class="welcomeText">
-          Welcome, <span id="welcomeName">User</span>!
+  <!-- Login Screen -->
+  <div id="loginScreen" class="screen">
+    <div class="login-wrapper">
+      <div class="login-card">
+        <div class="login-logo">
+          <img src="icons/icon48.png" alt="Grace Logo">
         </div>
-        <button id="logoutBtn">Logout</button>
-      </div>
-
-      <hr />
-
-      <button id="fetchRecordsBtn">Fetch Records</button>
-
-      <select id="recordsDropdown">
-        <option value="">Select Record</option>
-      </select>
-
-      <button id="fillFormBtn">Load Record</button>
-      <button id="submitFormBtn">Submit Form</button>
-
-      <hr />
-
-      <details class="debugPanel">
-        <!-- <summary>Debug</summary> -->
-        <div class="debugBlock">
-          <div class="debugLabel">Last record response JSON</div>
-          <pre id="recordJson" class="debugPre"></pre>
+        <h2>Grace Login</h2>
+        <p class="subtitle">Connect your provider account</p>
+        <div class="form-group">
+          <label for="providerId">Provider ID</label>
+          <input type="text" id="providerId" placeholder="Enter provider ID" autocomplete="off">
         </div>
-        <!-- <div class="debugBlock">
-          <div class="debugLabel">Fill report</div>
-          <pre id="fillReportJson" class="debugPre"></pre>
-        </div> -->
-      </details>
+        <div class="form-group">
+          <label for="providerSecret">Provider Secret</label>
+          <input type="password" id="providerSecret" placeholder="Enter provider secret" autocomplete="off">
+        </div>
+        <div class="form-group">
+          <label for="apiKey">API Key</label>
+          <input type="text" id="apiKey" placeholder="Enter API key" autocomplete="off">
+        </div>
+        <div class="form-group">
+          <label for="email">Email</label>
+          <input type="email" id="email" placeholder="user@domain.com" autocomplete="off">
+        </div>
+        <button id="loginBtn" class="btn btn-primary btn-full">Sign In</button>
+      </div>
     </div>
+  </div>
 
-    <script src="popup.js"></script>
-  </body>
+  <!-- Dashboard Screen -->
+  <div id="dashboardScreen" class="screen hidden">
+    <div class="screen-header">
+      <h2>Dashboard</h2>
+      <div class="header-actions">
+        <button id="fetchRecordsBtn" class="icon-btn" title="Fetch Records">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+            <polyline points="7 10 12 15 17 10"/>
+            <line x1="12" y1="15" x2="12" y2="3"/>
+          </svg>
+        </button>
+        <button id="logoutBtn" class="icon-btn" title="Logout">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M18.36 6.64a9 9 0 1 1-12.73 0"/>
+            <line x1="12" y1="2" x2="12" y2="12"/>
+          </svg>
+        </button>
+        <span id="welcomeName" class="badge">User</span>
+      </div>
+    </div>
+    <div id="welcomePanel" class="screen-body">
+      <div class="stats-grid">
+        <div class="stat-card">
+          <span class="stat-value" id="statRecords">0</span>
+          <span class="stat-label">Records</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-value" id="statPending">0</span>
+          <span class="stat-label">Pending</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-value" id="statSubmitted">0</span>
+          <span class="stat-label">Submitted</span>
+        </div>
+      </div>
+      <div class="recent-section">
+        <h3>Recent Records</h3>
+        <div id="recentRecordsList" class="recent-list">
+          <p class="empty-state">No records fetched yet</p>
+        </div>
+      </div>
+      <div class="loaded-section">
+        <h3>📌 Loaded Record</h3>
+        <div id="loadedRecordPanel" class="loaded-panel">
+          <p class="empty-state">No record loaded</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Actions Screen -->
+  <div id="actionScreen" class="screen hidden">
+    <div class="screen-header">
+      <h2>Record Actions</h2>
+    </div>
+    <div class="screen-body">
+      <div class="form-group">
+        <label for="recordsDropdown">Select Record</label>
+        <select id="recordsDropdown">
+          <option value="">— Select a record —</option>
+        </select>
+      </div>
+      <div class="btn-row">
+        <button id="fillFormBtn" class="btn btn-outline">Load</button>
+        <button id="submitFormBtn" class="btn btn-primary">Submit</button>
+        <button id="clearFormBtn" class="btn btn-outline">🗑️ Clear</button>
+      </div>
+      <div class="debug-section">
+        <div class="debug-header">
+          <span>Record Data</span>
+        </div>
+        <pre id="recordJson" class="pre-box"></pre>
+      </div>
+      <div class="debug-section">
+        <div class="debug-header">
+          <span>Fill Report</span>
+        </div>
+        <pre id="fillReportJson" class="pre-box"></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- Debug Screen -->
+  <div id="debugScreen" class="screen hidden">
+    <div class="screen-header">
+      <h2>Inspector</h2>
+      <button id="refreshDebugBtn" class="icon-btn" title="Refresh">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="23 4 23 10 17 10"/>
+          <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
+        </svg>
+      </button>
+    </div>
+    <div class="screen-body">
+      <div class="debug-section">
+        <div class="debug-header">
+          <span>Last API Response</span>
+        </div>
+        <pre id="debugResponseJson" class="pre-box">No API calls yet</pre>
+      </div>
+      <div class="debug-section">
+        <div class="debug-header">
+          <span>Session Info</span>
+        </div>
+        <pre id="sessionInfo" class="pre-box">Not logged in</pre>
+      </div>
+      <div class="debug-section">
+        <div class="debug-header">
+          <span>Current State</span>
+        </div>
+        <pre id="currentStateJson" class="pre-box">{}</pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- Navigation Tabs (hidden before login) -->
+  <div id="navTabs" class="nav-tabs hidden">
+    <button class="nav-tab active" data-screen="dashboardScreen">
+      <span class="nav-icon">🏠</span>
+      <span class="nav-label">Home</span>
+    </button>
+    <button class="nav-tab" data-screen="actionScreen">
+      <span class="nav-icon">⚡</span>
+      <span class="nav-label">Actions</span>
+    </button>
+    <button class="nav-tab" data-screen="debugScreen">
+      <span class="nav-icon">🔍</span>
+      <span class="nav-label">Debug</span>
+    </button>
+  </div>
+</div>
+<script src="popup.js"></script>
+</body>
 </html>
